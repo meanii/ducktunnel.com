@@ -1,0 +1,31 @@
+---
+services:
+
+  # web application
+  web:
+    build:
+      context: ./apps/website
+      dockerfile: Dockerfile
+    ports:
+      - "${WEB_PORT:-4001}:80"
+    restart: unless-stopped
+    depends_on:
+      - server
+    networks:
+      - app-network
+
+  # server application
+  server:
+    build:
+      context: ./services/server
+      dockerfile: Dockerfile
+    ports:
+      - "${SERVER_PORT:-4002}:8080"
+    command: ["./server", "-port", "8080"]
+    restart: unless-stopped
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
