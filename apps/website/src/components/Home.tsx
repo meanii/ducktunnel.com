@@ -1,47 +1,158 @@
 import { useNavigate } from '@tanstack/react-router';
+import { useState, useEffect } from 'react';
+import { Clock, RefreshCw } from 'lucide-react';
 import { generateRoomName } from '../utils/roomName';
+
+interface RecentRoom {
+  name: string;
+  lastVisited: number;
+}
 
 export function Home() {
   const navigate = useNavigate();
-  const roomName = generateRoomName();
+  const [roomName, setRoomName] = useState(generateRoomName());
+  const [recentRooms, setRecentRooms] = useState<RecentRoom[]>([]);
+
+  // Load recent rooms from localStorage on component mount
+  useEffect(() => {
+    const savedRooms = localStorage.getItem('ducktunnel-recent-rooms');
+    if (savedRooms) {
+      try {
+        const rooms = JSON.parse(savedRooms) as RecentRoom[];
+        // Sort by last visited (most recent first) and limit to 5
+        const sortedRooms = rooms
+          .sort((a, b) => b.lastVisited - a.lastVisited)
+          .slice(0, 3);
+        setRecentRooms(sortedRooms);
+      } catch (error) {
+        console.error('Error loading recent rooms:', error);
+      }
+    }
+  }, []);
+
+  const saveRoomToRecent = (roomName: string) => {
+    const newRoom: RecentRoom = {
+      name: roomName,
+      lastVisited: Date.now()
+    };
+
+    // Get existing rooms and filter out the current room if it exists
+    const existingRooms = recentRooms.filter(room => room.name !== roomName);
+
+    // Add new room to the beginning and limit to 3 rooms
+    const updatedRooms = [newRoom, ...existingRooms].slice(0, 3);
+    
+    setRecentRooms(updatedRooms);
+    localStorage.setItem('ducktunnel-recent-rooms', JSON.stringify(updatedRooms));
+  };
 
   const handleStartChat = () => {
+    saveRoomToRecent(roomName);
     navigate({ to: `/${roomName}` });
   };
 
+  const handleJoinRecentRoom = (room: RecentRoom) => {
+    saveRoomToRecent(room.name);
+    navigate({ to: `/${room.name}` });
+  };
+
+  const regenerateRoomName = () => {
+    setRoomName(generateRoomName());
+  };
+
+  const formatTimeAgo = (timestamp: number) => {
+    const now = Date.now();
+    const diffMinutes = Math.floor((now - timestamp) / (1000 * 60));
+    const diffHours = Math.floor(diffMinutes / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMinutes < 1) return 'Just now';
+    if (diffMinutes < 60) return `${diffMinutes}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    return `${diffDays}d ago`;
+  };
+
   return (
-    <div className="h-screen w-full flex flex-col items-center justify-center text-gray-200 font-sans overflow-hidden">
-      <div className="text-center flex-1 flex flex-col justify-center px-4">
-        <h1 className="text-4xl font-normal tracking-tight mb-2">
-          <span className="text-gray-400">ducktunnel.com</span>
-          <span className="text-green-500">/{roomName}</span>
-        </h1>
-        <p className="text-base text-gray-400 mb-2 font-light">
-          Simple, private, and secure P2P voice chat for friends & family{' '}
-          <span className="inline-block">🐥</span>
-        </p>
-        <p className="text-sm text-gray-500 mb-8 font-light">
-          No registration required • End-to-end encrypted
-        </p>
-        <button
-          className="bg-green-500 text-white rounded-lg px-8 py-3 text-base font-medium shadow-md transition-colors duration-200 hover:bg-green-600"
-          onClick={handleStartChat}
-        >
-          Start Chat
-        </button>
-      </div>
-      <footer className="text-center text-gray-400 text-sm tracking-tight pb-8 px-4">
-        <div className="flex items-center justify-center gap-2">
-          <span>Duck Tunnel © {new Date().getFullYear()}</span>
-          <span>•</span>
-          <a 
-            href="https://meanii.dev/" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="hover:text-gray-300 transition-colors duration-200"
+    <div className="min-h-screen w-full flex flex-col items-center justify-center text-gray-200 font-sans">
+      <div className="text-center flex-1 flex flex-col justify-center px-4 max-w-md w-full">
+        <div className="space-y-6">
+          {/* Main Header */}
+          <div>
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <h1 className="text-4xl font-normal tracking-tight">
+                <span className="text-gray-400">ducktunnel.com</span>
+                <span className="text-green-500">/{roomName}</span>
+              </h1>
+            </div>
+            <p className="text-base text-gray-400 font-light">
+              Simple, private, and secure P2P voice chat for friends & family{' '}
+              <span className="inline-block">🐥</span>
+            </p>
+          </div>
+
+          {/* Start Chat Button */}
+          <button
+            className="bg-green-500 text-white rounded-lg px-8 py-3 text-base font-medium shadow-md transition-colors duration-200 hover:bg-green-600 w-full"
+            onClick={handleStartChat}
           >
-            meanii.dev
-          </a>
+            Start Chat
+          </button>
+
+          {/* Recent Rooms */}
+          {recentRooms.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
+                <Clock className="h-4 w-4" />
+                <span>Recent rooms</span>
+              </div>
+              <div className="space-y-2">
+                {recentRooms.map((room) => (
+                  <button
+                    key={`${room.name}-${room.lastVisited}`}
+                    onClick={() => handleJoinRecentRoom(room)}
+                    className="w-full text-left bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700/50 hover:border-gray-600/50 rounded-lg px-4 py-3 transition-all duration-200 group"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-sm font-medium text-gray-200 group-hover:text-white">
+                          /{room.name}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {formatTimeAgo(room.lastVisited)}
+                        </div>
+                      </div>
+                      <div className="text-gray-500 group-hover:text-gray-400">
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="text-center text-gray-400 text-sm tracking-tight pb-8 px-4">
+        <div className="space-y-2">
+          <div className="text-xs text-gray-500">
+            No registration required • End-to-end encrypted
+          </div>
+          <div className="flex items-center justify-center gap-2">
+            <span>Duck Tunnel © {new Date().getFullYear()}</span>
+            <span>•</span>
+            <a 
+              href="https://meanii.dev/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-gray-300 transition-colors duration-200"
+            >
+              meanii.dev
+            </a>
+          </div>
         </div>
       </footer>
     </div>
