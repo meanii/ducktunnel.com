@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import '../App.css';
 import { Input } from './ui/input';
@@ -39,52 +39,22 @@ function VoiceChat({ roomName }: { roomName: string }) {
     }
   }, [roomName]);
 
-  const sendMessage = useCallback((message: Record<string, unknown>) => {
-    if (ws.current?.readyState === WebSocket.OPEN) {
-      ws.current.send(JSON.stringify(message));
-    }
-  }, []);
-
-  const handleOffer = useCallback(async (offer: RTCSessionDescriptionInit) => {
-    try {
-      await peerConnection.current?.setRemoteDescription(new RTCSessionDescription(offer));
-      const answer = await peerConnection.current?.createAnswer();
-      await peerConnection.current?.setLocalDescription(answer!);
-      sendMessage({ type: 'answer', answer });
-      setConnectionState('in-call');
-    } catch {
-      setError('Failed to handle offer');
-    }
-  }, [sendMessage]);
-
-  const handleAnswer = useCallback(async (answer: RTCSessionDescriptionInit) => {
-    try {
-      await peerConnection.current?.setRemoteDescription(new RTCSessionDescription(answer));
-    } catch {
-      setError('Failed to handle answer');
-    }
-  }, []);
-
-  const handleCandidate = useCallback(async (candidate: RTCIceCandidateInit) => {
-    try {
-      await peerConnection.current?.addIceCandidate(new RTCIceCandidate(candidate));
-    } catch {
-      setError('Failed to handle ICE candidate');
-    }
-  }, []);
-
   useEffect(() => {
     if (!ws.current) return;
 
-    const handleMessage = (event: MessageEvent) => {
+    ws.current.onmessage = (event) => {
       const message = JSON.parse(event.data);
       if (message.type === 'offer') handleOffer(message.offer);
       if (message.type === 'answer') handleAnswer(message.answer);
       if (message.type === 'candidate') handleCandidate(message.candidate);
     };
+  }, [ws.current]);
 
-    ws.current.onmessage = handleMessage;
-  }, [handleOffer, handleAnswer, handleCandidate]);
+  const sendMessage = (message: Record<string, unknown>) => {
+    if (ws.current?.readyState === WebSocket.OPEN) {
+      ws.current.send(JSON.stringify(message));
+    }
+  };
 
   const joinRoom = async () => {
     if (!roomId.trim()) {
@@ -152,6 +122,34 @@ function VoiceChat({ roomName }: { roomName: string }) {
       setConnectionState('in-call');
     } catch {
       setError('Failed to start call');
+    }
+  };
+
+  const handleOffer = async (offer: RTCSessionDescriptionInit) => {
+    try {
+      await peerConnection.current?.setRemoteDescription(new RTCSessionDescription(offer));
+      const answer = await peerConnection.current?.createAnswer();
+      await peerConnection.current?.setLocalDescription(answer!);
+      sendMessage({ type: 'answer', answer });
+      setConnectionState('in-call');
+    } catch {
+      setError('Failed to handle offer');
+    }
+  };
+
+  const handleAnswer = async (answer: RTCSessionDescriptionInit) => {
+    try {
+      await peerConnection.current?.setRemoteDescription(new RTCSessionDescription(answer));
+    } catch {
+      setError('Failed to handle answer');
+    }
+  };
+
+  const handleCandidate = async (candidate: RTCIceCandidateInit) => {
+    try {
+      await peerConnection.current?.addIceCandidate(new RTCIceCandidate(candidate));
+    } catch {
+      setError('Failed to handle ICE candidate');
     }
   };
 
