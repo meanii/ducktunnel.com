@@ -235,123 +235,125 @@ function VoiceChat({ roomName }: { roomName: string }) {
   const isInCall = connectionState === 'in-call';
 
   return (
-    <div className="w-full min-h-[60vh] flex flex-col items-center justify-center rounded-xl shadow-lg p-6">
-      <div className="flex items-center gap-2 mb-2">
-        <Mic className="w-6 h-6 text-green-500" />
-        <h1 className="text-2xl font-semibold tracking-tight text-gray-100">Voice Chat Room</h1>
-        <ShieldCheck className="w-5 h-5 text-gray-400 ml-2" />
-      </div>
-      <p className="text-sm text-gray-400 mb-6 flex items-center gap-1">
-        <Users className="w-4 h-4 inline text-gray-500" />
-        Private & secure P2P voice chat for friends & family
-      </p>
-
-      {/* Error Display */}
-      {error && (
-        <div className="bg-red-900/20 border border-red-500/50 text-red-300 px-4 py-2 rounded-lg mb-4">
-          {error}
+    <div className="h-screen w-full flex flex-col items-center justify-center text-gray-200 font-sans overflow-hidden">
+      <div className="w-full max-w-md flex flex-col items-center justify-center rounded-xl shadow-lg p-6">
+        <div className="flex items-center gap-2 mb-2">
+          <Mic className="w-6 h-6 text-green-500" />
+          <h1 className="text-2xl font-semibold tracking-tight text-gray-100">Voice Chat Room</h1>
+          <ShieldCheck className="w-5 h-5 text-gray-400 ml-2" />
         </div>
-      )}
+        <p className="text-sm text-gray-400 mb-6 flex items-center gap-1">
+          <Users className="w-4 h-4 inline text-gray-500" />
+          Private & secure P2P voice chat for friends & family
+        </p>
 
-      {/* Room Connection Section */}
-      {connectionState === 'disconnected' && (
-        <div className="flex gap-2 mb-6 w-full max-w-md">
-          <Input
-            type="text"
-            placeholder="Room ID"
-            value={roomId}
-            onChange={(e) => setRoomId(e.target.value)}
-            className="bg-neutral-800 text-gray-100 border-none focus:ring-2 focus:ring-green-500"
-            onKeyPress={(e) => e.key === 'Enter' && joinRoom()}
-          />
-          <Button 
-            onClick={joinRoom} 
-            disabled={!roomId.trim()}
-            className="bg-green-500 hover:bg-green-600 text-white"
-          >
-            <Mic className="w-4 h-4 mr-1" /> Join
-          </Button>
-        </div>
-      )}
+          {/* Error Display */}
+          {error && (
+            <div className="bg-red-900/20 border border-red-500/50 text-red-300 px-4 py-2 rounded-lg mb-4">
+              {error}
+            </div>
+          )}
 
-      {/* Connecting State */}
-      {connectionState === 'connecting' && (
-        <div className="text-center mb-6">
-          <p className="text-gray-300">Connecting to room...</p>
-        </div>
-      )}
+          {/* Room Connection Section */}
+          {connectionState === 'disconnected' && (
+            <div className="flex gap-2 mb-6">
+              <Input
+                type="text"
+                placeholder="Room ID"
+                value={roomId}
+                onChange={(e) => setRoomId(e.target.value)}
+                className="bg-neutral-800 text-gray-100 border-none focus:ring-2 focus:ring-green-500"
+                onKeyPress={(e) => e.key === 'Enter' && joinRoom()}
+              />
+              <Button 
+                onClick={joinRoom} 
+                disabled={!roomId.trim()}
+                className="bg-green-500 hover:bg-green-600 text-white"
+              >
+                <Mic className="w-4 h-4 mr-1" /> Join
+              </Button>
+            </div>
+          )}
 
-      {/* Connected State */}
-      {isConnected && (
-        <div className="flex flex-col items-center text-center mb-6">
-          <div className="flex items-center gap-2 mb-4">
-            <p className="text-gray-300">
-              Connected to <span className="font-semibold text-green-400">{roomId}</span>
-            </p>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={shareRoom}
-              className="text-gray-400 hover:text-blue-400 p-1 h-8"
-              title="Share room URL"
+          {/* Connecting State */}
+          {connectionState === 'connecting' && (
+            <div className="text-center mb-6">
+              <p className="text-gray-300">Connecting to room...</p>
+            </div>
+          )}
+
+          {/* Connected State */}
+          {isConnected && (
+            <div className="flex flex-col items-center text-center mb-6">
+              <div className="flex items-center gap-2 mb-4">
+                <p className="text-gray-300">
+                  Connected to <span className="font-semibold text-green-400">{roomId}</span>
+                </p>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={shareRoom}
+                  className="text-gray-400 hover:text-blue-400 p-1 h-8"
+                  title="Share room URL"
+                >
+                  {isUrlCopied ? (
+                    <Check className="w-4 h-4 text-green-400" />
+                  ) : (
+                    <Share2 className="w-4 h-4" />
+                  )}
+                </Button>
+              </div>
+              
+              {/* Call Controls */}
+              <div className="flex gap-2 mb-4">
+                {!isInCall && (
+                  <Button onClick={startCall} className="bg-green-500 hover:bg-green-600 text-white">
+                    <Volume2 className="w-4 h-4 mr-1" /> Start Call
+                  </Button>
+                )}
+                
+                {isInCall && (
+                  <Button 
+                    onClick={toggleMute} 
+                    variant={isMuted ? "destructive" : "default"}
+                    className={isMuted ? "bg-red-500 hover:bg-red-600" : "bg-gray-600 hover:bg-gray-700"}
+                  >
+                    <Mic className={`w-4 h-4 mr-1 ${isMuted ? 'line-through' : ''}`} /> 
+                    {isMuted ? 'Unmute' : 'Mute'}
+                  </Button>
+                )}
+              </div>
+
+              {/* Status */}
+              <p className="text-sm text-gray-400">
+                {connectionState === 'connected' && 'Ready to call'}
+                {connectionState === 'in-call' && 'In call'}
+              </p>
+            </div>
+          )}
+
+          {/* Remote Audio */}
+          {isInCall && (
+            <div className="mt-4 bg-neutral-800 rounded-lg p-4">
+              <h2 className="text-lg font-semibold text-center text-gray-200 mb-2 flex items-center justify-center gap-2">
+                <Volume2 className="w-5 h-5 text-green-400" /> Remote Audio
+              </h2>
+              <audio ref={remoteAudio} autoPlay className="mt-2 w-full rounded" />
+            </div>
+          )}
+
+          {/* Leave Room Button */}
+          <div className="mt-8 text-center">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-gray-400 hover:text-red-500 flex items-center gap-1"
+              onClick={leaveRoom}
             >
-              {isUrlCopied ? (
-                <Check className="w-4 h-4 text-green-400" />
-              ) : (
-                <Share2 className="w-4 h-4" />
-              )}
+              <LogOut className="w-4 h-4" /> Leave Room
             </Button>
           </div>
-          
-          {/* Call Controls */}
-          <div className="flex gap-2 mb-4">
-            {!isInCall && (
-              <Button onClick={startCall} className="bg-green-500 hover:bg-green-600 text-white">
-                <Volume2 className="w-4 h-4 mr-1" /> Start Call
-              </Button>
-            )}
-            
-            {isInCall && (
-              <Button 
-                onClick={toggleMute} 
-                variant={isMuted ? "destructive" : "default"}
-                className={isMuted ? "bg-red-500 hover:bg-red-600" : "bg-gray-600 hover:bg-gray-700"}
-              >
-                <Mic className={`w-4 h-4 mr-1 ${isMuted ? 'line-through' : ''}`} /> 
-                {isMuted ? 'Unmute' : 'Mute'}
-              </Button>
-            )}
-          </div>
-
-          {/* Status */}
-          <p className="text-sm text-gray-400">
-            {connectionState === 'connected' && 'Ready to call'}
-            {connectionState === 'in-call' && 'In call'}
-          </p>
         </div>
-      )}
-
-      {/* Remote Audio */}
-      {isInCall && (
-        <div className="mt-4 w-full max-w-xs bg-neutral-800 rounded-lg p-4">
-          <h2 className="text-lg font-semibold text-center text-gray-200 mb-2 flex items-center justify-center gap-2">
-            <Volume2 className="w-5 h-5 text-green-400" /> Remote Audio
-          </h2>
-          <audio ref={remoteAudio} autoPlay className="mt-2 w-full rounded" />
-        </div>
-      )}
-
-      {/* Leave Room Button */}
-      <div className="mt-8 text-center">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="text-gray-400 hover:text-red-500 flex items-center gap-1"
-          onClick={leaveRoom}
-        >
-          <LogOut className="w-4 h-4" /> Leave Room
-        </Button>
-      </div>
     </div>
   );
 }

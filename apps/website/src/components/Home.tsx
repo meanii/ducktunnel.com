@@ -10,8 +10,8 @@ export function Home() {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center text-gray-200 font-sans relative">
-      <div className="text-center mb-10">
+    <div className="h-screen w-full flex flex-col items-center justify-center text-gray-200 font-sans overflow-hidden">
+      <div className="text-center flex-1 flex flex-col justify-center px-4">
         <h1 className="text-4xl font-normal tracking-tight mb-2">
           <span className="text-gray-400">ducktunnel.com</span>
           <span className="text-green-500">/{roomName}</span>
@@ -21,13 +21,13 @@ export function Home() {
           <span className="inline-block">🦆</span>
         </p>
         <button
-          className="bg-green-500 text-white rounded-xl px-11 py-4 text-lg font-medium shadow-md transition-colors duration-200 hover:bg-green-600 mb-8"
+          className="bg-green-500 text-white rounded-xl px-11 py-4 text-lg font-medium shadow-md transition-colors duration-200 hover:bg-green-600"
           onClick={handleStartChat}
         >
           Start Chat
         </button>
       </div>
-      <footer className="absolute bottom-[10%] w-full text-center text-gray-400 text-sm tracking-tight">
+      <footer className="text-center text-gray-400 text-sm tracking-tight pb-8 px-4">
         Duck Tunnel &copy; {new Date().getFullYear()}
       </footer>
     </div>
