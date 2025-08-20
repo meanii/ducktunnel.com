@@ -1,0 +1,22 @@
+{
+  "name": "Duck Tunnel - P2P Voice Chat",
+  "short_name": "Duck Tunnel",
+  "description": "Simple, private, and secure P2P voice chat for friends & family",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#10B981",
+  "background_color": "#111827",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["communication", "social"],
+  "lang": "en",
+  "scope": "/",
+  "prefer_related_applications": false
+}

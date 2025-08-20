@@ -1,7 +1,8 @@
 {
-  "name": "demo.ducktunnel.com",
+  "name": "ducktunnel-website",
+  "description": "Duck Tunnel - Simple, private, and secure P2P voice chat for friends & family",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
