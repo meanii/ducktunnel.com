@@ -1,18 +1,11 @@
-'use client'
+
 
 import './App.css';
-import Demo from '@/components/Demo';
-
+import { RouterProvider } from '@tanstack/react-router';
+import { router } from './router';
 
 function App() {
-  return (
-    <div className="flex justify-center items-center h-screen">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Duck Tunnel - voIp</title>
-      
-      <Demo />
-    </div>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;

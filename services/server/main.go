@@ -110,7 +110,7 @@ func main() {
 	http.HandleFunc("/ws", handleConnections)
 
 	// Use ListenAndServe for non-TLS communication during development
-	log.Printf("ducktunnel.com server running on https://0.0.0.0:%s", *port)
+	log.Printf("ducktunnel.com server running on https://0.0.0.0:%s tls: %v", *port, !*notls)
 
 	if !*notls {
 		err := http.ListenAndServe(
@@ -133,7 +133,7 @@ func main() {
 		}
 
 		err = http.ListenAndServeTLS(
-			fmt.Sprintf("0.0.0.0:%s", *port),
+			fmt.Sprintf(":%s", *port),
 			absCertFile,
 			absKeyFile,
 			nil,

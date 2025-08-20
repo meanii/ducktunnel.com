@@ -6,6 +6,11 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Environment variables
+.env
+.env.local
+.env.production
+
 # Go
 *.exe
 *.exe~
@@ -24,3 +29,5 @@ vendor/
 /build/
 /captures/
 .externalNativeBuild/
+# Compiled Go binaries
+services/server/server
