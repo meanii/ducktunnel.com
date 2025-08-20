@@ -2,11 +2,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { useState, useEffect } from 'react';
 import { Clock, RefreshCw } from 'lucide-react';
 import { generateRoomName } from '../utils/roomName';
-
-interface RecentRoom {
-  name: string;
-  lastVisited: number;
-}
+import { saveRoomToRecent, getRecentRooms, type RecentRoom } from '../utils/recentRooms';
 
 export function Home() {
   const navigate = useNavigate();
@@ -15,44 +11,19 @@ export function Home() {
 
   // Load recent rooms from localStorage on component mount
   useEffect(() => {
-    const savedRooms = localStorage.getItem('ducktunnel-recent-rooms');
-    if (savedRooms) {
-      try {
-        const rooms = JSON.parse(savedRooms) as RecentRoom[];
-        // Sort by last visited (most recent first) and limit to 5
-        const sortedRooms = rooms
-          .sort((a, b) => b.lastVisited - a.lastVisited)
-          .slice(0, 3);
-        setRecentRooms(sortedRooms);
-      } catch (error) {
-        console.error('Error loading recent rooms:', error);
-      }
-    }
+    const rooms = getRecentRooms();
+    setRecentRooms(rooms);
   }, []);
 
-  const saveRoomToRecent = (roomName: string) => {
-    const newRoom: RecentRoom = {
-      name: roomName,
-      lastVisited: Date.now()
-    };
-
-    // Get existing rooms and filter out the current room if it exists
-    const existingRooms = recentRooms.filter(room => room.name !== roomName);
-
-    // Add new room to the beginning and limit to 3 rooms
-    const updatedRooms = [newRoom, ...existingRooms].slice(0, 3);
-    
-    setRecentRooms(updatedRooms);
-    localStorage.setItem('ducktunnel-recent-rooms', JSON.stringify(updatedRooms));
-  };
-
   const handleStartChat = () => {
-    saveRoomToRecent(roomName);
+    const updatedRooms = saveRoomToRecent(roomName);
+    setRecentRooms(updatedRooms);
     navigate({ to: `/${roomName}` });
   };
 
   const handleJoinRecentRoom = (room: RecentRoom) => {
-    saveRoomToRecent(room.name);
+    const updatedRooms = saveRoomToRecent(room.name);
+    setRecentRooms(updatedRooms);
     navigate({ to: `/${room.name}` });
   };
 
@@ -109,17 +80,17 @@ export function Home() {
 
         {/* Recent Rooms - constrained width */}
         {recentRooms.length > 0 && (
-          <div className="space-y-3 mt-8 max-w-md mx-auto">
+          <div className="space-y-3 mt-8 w-full max-w-md mx-auto">
             <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
               <Clock className="h-4 w-4" />
               <span>Recent rooms</span>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 min-w-80">
               {recentRooms.map((room) => (
                 <button
                   key={`${room.name}-${room.lastVisited}`}
                   onClick={() => handleJoinRecentRoom(room)}
-                  className="w-full text-left bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700/50 hover:border-gray-600/50 rounded-lg px-4 py-3 transition-all duration-200 group"
+                  className="w-full text-left bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700/50 hover:border-gray-600/50 rounded-lg px-4 py-3 transition-all duration-200 group min-w-80"
                 >
                   <div className="flex items-center justify-between">
                     <div>
