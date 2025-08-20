@@ -16,19 +16,33 @@ export function Home() {
           <span className="text-gray-400">ducktunnel.com</span>
           <span className="text-green-500">/{roomName}</span>
         </h1>
-        <p className="text-base text-gray-400 mb-8 font-light">
+        <p className="text-base text-gray-400 mb-2 font-light">
           Simple, private, and secure P2P voice chat for friends & family{' '}
-          <span className="inline-block">🦆</span>
+          <span className="inline-block">🐥</span>
+        </p>
+        <p className="text-sm text-gray-500 mb-8 font-light">
+          No registration required • End-to-end encrypted
         </p>
         <button
-          className="bg-green-500 text-white rounded-xl px-11 py-4 text-lg font-medium shadow-md transition-colors duration-200 hover:bg-green-600"
+          className="bg-green-500 text-white rounded-lg px-8 py-3 text-base font-medium shadow-md transition-colors duration-200 hover:bg-green-600"
           onClick={handleStartChat}
         >
           Start Chat
         </button>
       </div>
       <footer className="text-center text-gray-400 text-sm tracking-tight pb-8 px-4">
-        Duck Tunnel &copy; {new Date().getFullYear()}
+        <div className="flex items-center justify-center gap-2">
+          <span>Duck Tunnel © {new Date().getFullYear()}</span>
+          <span>•</span>
+          <a 
+            href="https://meanii.dev/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="hover:text-gray-300 transition-colors duration-200"
+          >
+            meanii.dev
+          </a>
+        </div>
       </footer>
     </div>
   );
