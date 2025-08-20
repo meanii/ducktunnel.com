@@ -5,7 +5,7 @@ import { useNavigate } from '@tanstack/react-router';
 import '../App.css';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
-import { ShieldCheck, Users, Volume2, Mic, LogOut } from 'lucide-react';
+import { ShieldCheck, Users, Volume2, Mic, LogOut, Share2, Check } from 'lucide-react';
 
 // Use a public STUN server for NAT traversal.
 const stunServer = {
@@ -26,6 +26,7 @@ function VoiceChat({ roomName }: { roomName: string }) {
   const [connectionState, setConnectionState] = useState<ConnectionState>('disconnected');
   const [error, setError] = useState<string | null>(null);
   const [isMuted, setIsMuted] = useState(false);
+  const [isUrlCopied, setIsUrlCopied] = useState(false);
 
   const ws = useRef<WebSocket | null>(null);
   const peerConnection = useRef<RTCPeerConnection | null>(null);
@@ -163,6 +164,22 @@ function VoiceChat({ roomName }: { roomName: string }) {
     }
   };
 
+  const shareRoom = async () => {
+    try {
+      const roomUrl = `${window.location.origin}/${roomId}`;
+      await navigator.clipboard.writeText(roomUrl);
+      setIsUrlCopied(true);
+      
+      // Reset the copied state after 2 seconds
+      setTimeout(() => {
+        setIsUrlCopied(false);
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to copy URL:', err);
+      setError('Failed to copy URL to clipboard');
+    }
+  };
+
   const leaveRoom = () => {
     // Close WebSocket connection
     if (ws.current) {
@@ -193,6 +210,7 @@ function VoiceChat({ roomName }: { roomName: string }) {
     setConnectionState('disconnected');
     setError(null);
     setIsMuted(false);
+    setIsUrlCopied(false);
 
     // Navigate back to home
     navigate({ to: '/' });
@@ -266,9 +284,24 @@ function VoiceChat({ roomName }: { roomName: string }) {
       {/* Connected State */}
       {isConnected && (
         <div className="flex flex-col items-center text-center mb-6">
-          <p className="mb-4 text-gray-300">
-            Connected to <span className="font-semibold text-green-400">{roomId}</span>
-          </p>
+          <div className="flex items-center gap-2 mb-4">
+            <p className="text-gray-300">
+              Connected to <span className="font-semibold text-green-400">{roomId}</span>
+            </p>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={shareRoom}
+              className="text-gray-400 hover:text-blue-400 p-1 h-8"
+              title="Share room URL"
+            >
+              {isUrlCopied ? (
+                <Check className="w-4 h-4 text-green-400" />
+              ) : (
+                <Share2 className="w-4 h-4" />
+              )}
+            </Button>
+          </div>
           
           {/* Call Controls */}
           <div className="flex gap-2 mb-4">
